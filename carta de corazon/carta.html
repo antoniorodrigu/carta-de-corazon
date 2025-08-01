@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Feliz Día de la Novia</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Parisienne&display=swap');
+
+    /* Estilos básicos */
+    body, html {
+      margin: 0; padding: 0; height: 100%;
+      font-family: 'Parisienne', cursive, serif;
+      background: linear-gradient(180deg, #1a0d1a 0%, #2b0f2b 100%);
+      overflow: hidden;
+      color: #ffccff;
+      position: relative;
+    }
+
+    /* Canvas para Three.js en fondo */
+    canvas.webgl {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 0;
+      pointer-events: none; /* para no interferir con clicks */
+    }
+
+    /* Contenedor principal con contenido */
+    .content {
+      position: relative;
+      z-index: 1; /* Sobre el canvas */
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2rem;
+      height: 100vh;
+      overflow: hidden;
+      box-sizing: border-box;
+    }
+
+    h1 {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+      text-align: center;
+      text-shadow: 0 0 10px rgba(255, 153, 204, 0.7);
+      color: #ffccff;
+    }
+
+    img {
+      max-width: 200px;
+      margin-bottom: 2rem;
+      border-radius: 20px;
+      box-shadow: 0 0 25px #ff6f91;
+    }
+
+    .carta-container {
+      background: rgba(255, 255, 255, 0.9);
+      color: #b33939;
+      border-radius: 15px;
+      padding: 2rem 3rem;
+      max-width: 600px;
+      width: 100%;
+      box-shadow: 0 0 30px #ff6f91;
+      font-size: 1.5rem;
+      line-height: 1.6;
+      max-height: 50vh;
+      overflow-y: auto;
+    }
+
+    /* Scrollbar personalizado para webkit */
+    .carta-container::-webkit-scrollbar {
+      width: 8px;
+    }
+    .carta-container::-webkit-scrollbar-thumb {
+      background-color: #b33939;
+      border-radius: 4px;
+    }
+    .carta-container::-webkit-scrollbar-track {
+      background: transparent;
+    }
+  </style>
+</head>
+<body>
+  <!-- Canvas para los corazones animados -->
+  <canvas class="webgl"></canvas>
+
+  <!-- Contenido sobre el canvas -->
+  <div class="content">
+    <h1>❤️😍🥰 Feliz Día de la  novia Mi Bubu Hermosa ❤️😍🥰</h1>
+    <img src="amor.png" alt="Amor" />
+    <div class="carta-container">
+      <p>
+        Mi osita hermosa de mi corazon Britney 🐻💖,<br><br>
+        Hoy, en este día tan especial 💝✨, quiero decirte que desde el primer momento en que tus ojos se cruzaron con los míos 👀💕, mi mundo cambió para siempre 🌎💫.<br><br>
+        Cada latido de mi corazón ❤️🎶 lleva tu nombre grabado, y cada pensamiento 💭🌸 está lleno de la magia única que solo tú sabes crear ✨🌈.<br><br>
+        No hay palabras suficientes para expresar lo profundo de mi amor por ti 💘📝, pero quiero que sientas que eres mi inspiración diaria 🌞🌹, mi fuerza inquebrantable 💪🔥 y mi refugio seguro 🏡💞.<br><br>
+        Gracias por ser esa luz brillante que ilumina mis días oscuros 🌟🌙, por tu risa que cura cualquier herida 😂💊, y por el amor puro y sincero que me entregas sin reservas 💝🌷.<br><br>
+        Si pudiera regalarte el universo entero 🌌🎁, lo haría sin dudar porque tú mereces todo lo bello que existe en este mundo 🌺🌟.<br><br>
+        Feliz Día de la Novia, mi princesa 👑💖, mi todo, mi vida entera 🌹💞.<br><br>
+        Siempre tuyo, con todo mi corazón ❤️🫶,<br>
+        Tu Bubu 🐻💘<br><br>
+        ❤️💖 Te amo más que a nada en este mundo, mi Bbu hermosa 😍🥰😘🌹✨💋💕!!!
+      </p>
+    </div>
+  </div>
+
+  <!-- Importamos Three.js desde CDN -->
+  <script type="module">
+    import * as THREE from "https://cdn.skypack.dev/three@0.135.0";
+
+    // Código simplificado para crear la nube de corazones animada
+    class HeartCloud {
+      constructor(canvas) {
+        this.canvas = canvas;
+        this.renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+        this.renderer.setSize(window.innerWidth, window.innerHeight);
+        this.renderer.setClearColor(0x000000, 0); // transparente
+        this.scene = new THREE.Scene();
+        this.camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 100);
+        this.camera.position.z = 4;
+
+        this.clock = new THREE.Clock();
+
+        // Material con textura de corazón
+        this.texture = new THREE.TextureLoader().load("https://assets.codepen.io/74321/heart.png");
+        this.material = new THREE.PointsMaterial({
+          size: 0.1,
+          map: this.texture,
+          transparent: true,
+          blending: THREE.AdditiveBlending,
+          depthWrite: false,
+          color: 0xff66cc
+        });
+
+        this.createHearts();
+
+        window.addEventListener('resize', () => this.onResize());
+        this.animate();
+      }
+
+      createHearts() {
+        const count = 1500;
+        const geometry = new THREE.BufferGeometry();
+        const positions = new Float32Array(count * 3);
+        for (let i = 0; i < count; i++) {
+          positions[i*3 + 0] = (Math.random() - 0.5) * 10;  // x
+          positions[i*3 + 1] = (Math.random() - 0.5) * 10;  // y
+          positions[i*3 + 2] = (Math.random() - 0.5) * 10;  // z
+        }
+        geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+        this.points = new THREE.Points(geometry, this.material);
+        this.scene.add(this.points);
+      }
+
+      animate() {
+        requestAnimationFrame(() => this.animate());
+        const elapsed = this.clock.getElapsedTime();
+
+        // Animar la nube de corazones (puedes personalizarlo)
+        this.points.rotation.y = elapsed * 0.2;
+        this.points.rotation.x = Math.sin(elapsed * 0.1) * 0.1;
+
+        this.renderer.render(this.scene, this.camera);
+      }
+
+      onResize() {
+        this.renderer.setSize(window.innerWidth, window.innerHeight);
+        this.camera.aspect = window.innerWidth/window.innerHeight;
+        this.camera.updateProjectionMatrix();
+      }
+    }
+
+    // Inicializamos la nube de corazones con el canvas existente
+    const canvas = document.querySelector('canvas.webgl');
+    new HeartCloud(canvas);
+  </script>
+</body>
+</html>
